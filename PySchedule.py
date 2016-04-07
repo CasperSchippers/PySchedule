@@ -13,16 +13,18 @@ class Window(QWidget):
 
 		self.initUI()
 		self.fakedata()
-		self.scheduler()
 
 	def initUI(self):
 		# define GUI here
 		self.box = QVBoxLayout()
 		self.inputbox = QHBoxLayout()
+		self.middlebuttonbox = QHBoxLayout()
 		self.outputbox = QHBoxLayout()
 		self.box.addLayout(self.inputbox)
+		self.box.addLayout(self.middlebuttonbox)
 		self.box.addLayout(self.outputbox)
 
+		# input box
 		self.persontable = QTableWidget()
 		self.persontable.setRowCount(0)
 		self.persontable.setColumnCount(4)
@@ -37,6 +39,14 @@ class Window(QWidget):
 		self.cal = QCalendarWidget()
 		self.inputbox.addWidget(self.cal)
 
+		# middle button box
+		self.startschedulebutton = QPushButton('Maak rooster')
+		self.startschedulebutton.clicked.connect(self.scheduler)
+		self.middlebuttonbox.addStretch(1)
+		self.middlebuttonbox.addWidget(self.startschedulebutton)
+		self.middlebuttonbox.addStretch(1)
+
+		# output box
 		self.outputtable = QTableWidget()
 		self.outputtable.setRowCount(0)
 		self.outputtable.setColumnCount(0)
@@ -60,7 +70,6 @@ class Window(QWidget):
 
 
 	def scheduler(self):
-		print("scheduler")
 		self.peoplenum = self.persontable.rowCount()
 		self.datesnum = len(self.dates)
 
@@ -87,7 +96,6 @@ class Window(QWidget):
 
 				del PickingList[i]
 
-		print(self.schedule)
 		check = self.checkschedule()
 		if check:
 			print('good')
@@ -112,7 +120,6 @@ class Window(QWidget):
 			self.outputtable.setItem(i,0, QTableWidgetItem(self.dates[i].strftime("%d / %m / %Y")))
 
 			for j in range(len(self.schedule[i])):
-				print(j)
 				self.outputtable.setItem(i,j+1, QTableWidgetItem(self.people[self.schedule[i][j]]))
 
 
