@@ -1,4 +1,5 @@
 import sys
+import ctypes
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -32,7 +33,7 @@ class Window(QWidget):
 		self.persontable = QTableWidget()
 		self.persontable.setRowCount(0)
 		self.persontable.setColumnCount(4)
-		self.persontable.setHorizontalHeaderLabels("Naam;1;2;3".split(";"))
+		self.persontable.setHorizontalHeaderLabels(["Naam", "2", "3", "4"])
 		personbox.addWidget(self.persontable)
 
 		personbuttonbox = QHBoxLayout()
@@ -55,6 +56,7 @@ class Window(QWidget):
 		self.datatable.setColumnCount(2)
 		self.datatable.setHorizontalHeaderLabels(["Datum", "Tijd (optioneel)"])
 		databox.addWidget(self.datatable)
+		### perhaps change datatable into seperate year, month, day columns
 
 		databuttonbox = QHBoxLayout()
 		databox.addLayout(databuttonbox)
@@ -72,6 +74,7 @@ class Window(QWidget):
 		inputbox.addLayout(calbox)
 
 		self.cal = QCalendarWidget()
+		self.cal.activated.connect(self.adddatefromcal)
 		calbox.addWidget(self.cal)
 
 		caltimebox = QHBoxLayout()
@@ -88,11 +91,12 @@ class Window(QWidget):
 		self.outputtable = QTableWidget()
 		self.outputtable.setRowCount(0)
 		self.outputtable.setColumnCount(0)
-		self.outputtable.setHorizontalHeaderLabels(["Datum",])
 		outputbox.addWidget(self.outputtable)
 
 		self.setLayout(box)
 		self.resize(1100,700)
+		self.setWindowTitle('PySchedule')
+		self.setWindowIcon(QIcon('Icon.png'))
 		self.show()
 
 	def fakedata(self):
@@ -102,10 +106,12 @@ class Window(QWidget):
 			self.persontable.setItem(i,0, QTableWidgetItem(people[i]))
 		# del self.people
 
-		dates = [datetime(2016, 1, 1), datetime(2016, 1, 2), datetime(2016, 1, 3), datetime(2016, 1, 4), datetime(2016, 1, 5), datetime(2016, 1, 6), datetime(2016, 1, 7)]
+		dates = [datetime(2016, 1, 1), datetime(2016, 1, 2), datetime(2016, 1, 3, 16, 40), datetime(2016, 1, 4), datetime(2016, 1, 5), datetime(2016, 1, 6), datetime(2016, 1, 7)]
 		for i in range(len(dates)):
 			self.datatable.insertRow(self.datatable.rowCount())
 			self.datatable.setItem(i,0, QTableWidgetItem(dates[i].strftime("%d/%m/%Y")))
+			if dates[i].hour != 0 and dates[i].minute != 0:
+				self.datatable.setItem(i,1, QTableWidgetItem(dates[i].strftime("%H:%M")))
 		# del self.dates
 
 	def scheduler(self):
@@ -119,15 +125,16 @@ class Window(QWidget):
 		self.dates = []
 		for i in range(self.datesnum):
 			datestr = self.datatable.item(i,0).text()
-			self.dates.append(datetime.strptime(datestr, "%d/%m/%Y"))
+			if self.datatable.item(i,1) == None:
+				self.dates.append(datetime.strptime(datestr, "%d/%m/%Y"))
+			else:
+				timestr = self.datatable.item(i,1).text()
+				self.dates.append(datetime.strptime(datestr + " " + timestr , "%d/%m/%Y %H:%M"))
+
 
 		self.numperday = 5
 
 		PickingList = [x for x in range(self.peoplenum)] * math.ceil((self.numperday*self.datesnum)/self.peoplenum)
-
-		# Make a list of an integer times all people so that items on that list > total number of places and randomly pick (and remove) a person from that list for each moment
-		# then check if same person is not left over more than once
-
 
 
 		self.schedule = [x[:] for x in [[[None]]*self.numperday]*self.datesnum]
@@ -161,7 +168,10 @@ class Window(QWidget):
 		self.outputtable.setHorizontalHeaderLabels(HeaderString.split(';'))
 
 		for i in range(len(self.schedule)):
-			self.outputtable.setItem(i,0, QTableWidgetItem(self.dates[i].strftime("%d / %m / %Y  %H:%M")))
+			if (self.dates[i].hour == 0 and self.dates[i].minute== 0):
+				self.outputtable.setItem(i,0, QTableWidgetItem(self.dates[i].strftime("%d / %m / %Y")))
+			else:
+				self.outputtable.setItem(i,0, QTableWidgetItem(self.dates[i].strftime("%d / %m / %Y  %H:%M")))
 
 			for j in range(len(self.schedule[i])):
 				self.outputtable.setItem(i,j+1, QTableWidgetItem(self.people[self.schedule[i][j]]))
@@ -184,12 +194,23 @@ class Window(QWidget):
 		selected = self.datatable.currentRow()
 		self.datatable.removeRow(selected)
 
+	def adddatefromcal(self):
+		Date = self.cal.selectedDate()
+		print(Date.year(),Date.month(),Date.day())
+		self.datatable.insertRow(self.datatable.rowCount())
+		self.datatable.setItem(self.datatable.rowCount()-1,0, QTableWidgetItem("{0:02d}/{1:02d}/{2:0d}".format(Date.day(), Date.month(), Date.year())))
+		self.datatable.sortItems(1,order = Qt.AscendingOrder)
+		self.datatable.sortItems(0,order = Qt.AscendingOrder)
+
 	# def correctschedule(self):
 
 	# define other functions of window class
 
 def main():
 	app = QApplication(sys.argv)
+
+	myappid = 'casperschipperes.pyschedule.1.1' # arbitrary string
+	ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 	window = Window()
 
