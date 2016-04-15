@@ -96,7 +96,7 @@ class Window(QWidget):
 		self.setLayout(box)
 		self.resize(1100,700)
 		self.setWindowTitle('PySchedule')
-		self.setWindowIcon(QIcon('Icon.png'))
+		self.setWindowIcon(QIcon(resource_path("Icon.ico")))
 		self.show()
 
 	def fakedata(self):
@@ -205,6 +205,15 @@ class Window(QWidget):
 	# def correctschedule(self):
 
 	# define other functions of window class
+def resource_path(relative_path):
+	""" Get absolute path to resource, works for dev and for PyInstaller """
+	try:
+	    # PyInstaller creates a temp folder and stores path in _MEIPASS
+	    base_path = sys._MEIPASS
+	except Exception:
+	    base_path = os.path.abspath(".")
+	
+	return os.path.join(base_path, relative_path)
 
 def main():
 	app = QApplication(sys.argv)
