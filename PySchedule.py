@@ -1,5 +1,4 @@
-import sys
-import ctypes
+import sys, os, ctypes
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
