@@ -32,7 +32,7 @@ class Window(QWidget):
 		self.persontable = QTableWidget()
 		self.persontable.setRowCount(0)
 		self.persontable.setColumnCount(4)
-		self.persontable.setHorizontalHeaderLabels(["Naam", "2", "3", "4"])
+		self.persontable.setHorizontalHeaderLabels(["Naam", "Eenmalige uitval", "Wekelijkse beschikbaarheid", "4"])
 		personbox.addWidget(self.persontable)
 
 		personbuttonbox = QHBoxLayout()
@@ -103,6 +103,7 @@ class Window(QWidget):
 		for i in range(len(people)):
 			self.persontable.insertRow(self.persontable.rowCount())
 			self.persontable.setItem(i,0, QTableWidgetItem(people[i]))
+		self.persontable.setItem(1,1,QTableWidgetItem("05/01/2016"))
 		# del self.people
 
 		dates = [datetime(2016, 1, 1), datetime(2016, 1, 2), datetime(2016, 1, 3, 16, 40), datetime(2016, 1, 4), datetime(2016, 1, 5), datetime(2016, 1, 6), datetime(2016, 1, 7)]
@@ -118,8 +119,18 @@ class Window(QWidget):
 		self.datesnum = self.datatable.rowCount()
 
 		self.people = []
+		self.onetimeconstraints = []
 		for i in range(self.peoplenum):
 			self.people.append(self.persontable.item(i,0).text())
+			constraint = self.persontable.item(i,1)
+			if constraint is None:
+				self.constraints.append("")
+			else:
+				dates = []
+				for datestring in constraint.text().split(';'):
+					dates.append(datetime.strptime(datestring, "%d/%m/%Y"))
+				self.constraints.append(dates)
+		print(self.onetimeconstraints)
 		
 		self.dates = []
 		for i in range(self.datesnum):
@@ -131,9 +142,10 @@ class Window(QWidget):
 				self.dates.append(datetime.strptime(datestr + " " + timestr , "%d/%m/%Y %H:%M"))
 
 
-		self.numperday = 5
+		self.numperday = 3
 
 		PickingList = [x for x in range(self.peoplenum)] * math.ceil((self.numperday*self.datesnum)/self.peoplenum)
+		print(math.ceil((self.numperday*self.datesnum)/self.peoplenum))
 
 
 		self.schedule = [x[:] for x in [[[None]]*self.numperday]*self.datesnum]
@@ -150,7 +162,7 @@ class Window(QWidget):
 
 				del PickingList[i]
 
-		check = self.checkschedule()
+		check = self.checkschedule(PickingList)
 		if check:
 			print('good')
 			self.publishschedule()
@@ -176,7 +188,8 @@ class Window(QWidget):
 				self.outputtable.setItem(i,j+1, QTableWidgetItem(self.people[self.schedule[i][j]]))
 
 
-	def checkschedule(self):
+	def checkschedule(self,PickingList):
+		print(PickingList)
 		return True
 
 	def addpersonrow(self):
