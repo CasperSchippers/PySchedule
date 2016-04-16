@@ -124,7 +124,7 @@ class Window(QWidget):
 		self.dates = []
 		for i in range(self.datesnum):
 			datestr = self.datatable.item(i,0).text()
-			if self.datatable.item(i,1) == None:
+			if self.datatable.item(i,1) is None:
 				self.dates.append(datetime.strptime(datestr, "%d/%m/%Y"))
 			else:
 				timestr = self.datatable.item(i,1).text()
