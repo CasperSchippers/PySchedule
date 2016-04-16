@@ -69,15 +69,15 @@ class Window(QWidget):
 		databuttonbox.addWidget(deletedatumrowbutton)
 
 		## Calendar
-		calbox = QVBoxLayout()
-		inputbox.addLayout(calbox)
+		# calbox = QVBoxLayout()
+		# inputbox.addLayout(calbox)
 
-		self.cal = QCalendarWidget()
-		self.cal.activated.connect(self.adddatefromcal)
-		calbox.addWidget(self.cal)
+		# self.cal = QCalendarWidget()
+		# self.cal.activated.connect(self.adddatefromcal)
+		# calbox.addWidget(self.cal)
 
-		caltimebox = QHBoxLayout()
-		inputbox.addLayout(caltimebox)
+		# caltimebox = QHBoxLayout()
+		# inputbox.addLayout(caltimebox)
 
 		# middle button box
 		startschedulebutton = QPushButton('Maak rooster')
